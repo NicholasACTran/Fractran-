@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <queue>
 
 using namespace std;
 
@@ -45,6 +46,146 @@ struct rational
         int den;
 };
 
+//This Function will take in a string, and then parse out the literals into a queue
+
+void parse_Literals(queue<string> &FractranLiterals, string a)
+{
+    size_t prev_pos = 0, pos;
+    while ((pos = a.find_first_of("/ *()", prev_pos)) != string::npos)
+    {
+        if (pos > prev_pos && a.at(pos) == ' ')
+            FractranLiterals.push(a.substr(prev_pos, pos-prev_pos));
+        else if (pos > prev_pos)
+        {
+            FractranLiterals.push(a.substr(prev_pos, pos-prev_pos));
+            FractranLiterals.push(a.substr(pos, 1));
+        }
+        else if (prev_pos == pos && a.at(pos) == ' ')
+        {
+            //do nothing
+        }
+        else
+        {
+            FractranLiterals.push(a.substr(pos, 1));
+        }
+        prev_pos = pos+1;
+    }
+    if (prev_pos < a.length())
+        FractranLiterals.push(a.substr(prev_pos, string::npos));
+}
+
+//When encountering an asterisk during parsing, this function will parse the following
+//literals until it reaches a close parenthesis.
+
+int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication)
+{
+    string token_a = FractranLiterals.front();
+    FractranLiterals.pop();
+    string token_b = FractranLiterals.front();
+    FractranLiterals.pop();
+    if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == "*")
+    {
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            Multiplication.push_back(ProgramInteger);
+            return asterisk_parse(FractranLiterals, Multiplication);
+        }
+        else
+        {
+            throw "Program must be written as rationals";
+        }
+    }
+    else if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == ")")
+    {
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            int product = ProgramInteger;
+            for (unsigned i = 0; i < Multiplication.size(); i++)
+                product = product*Multiplication.at(i);
+            return product;
+        }
+        else
+        {
+            throw "Program must be written as rationals";
+        }
+    }
+    else
+    {
+        throw "Program must be written as rationals";
+    }
+}
+
+//When encountering a left parenthesis during parsing, this will parse out the parenthesis
+//and all possible following cases.
+
+int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
+{
+    vector<int> multiplication;
+    string token = FractranLiterals.front();
+    FractranLiterals.pop();
+    if(!(token.find_first_not_of( "0123456789" ) == string::npos))
+    {
+        throw "Program must be written as rationals";
+    }
+    int ProgramInteger;
+    stringstream ss(token);
+    ss >> ProgramInteger;
+    if (ProgramInteger > 0)
+        multiplication.push_back(ProgramInteger);
+    else
+    {
+        throw "Program must be written as rationals";
+    }
+
+    token = FractranLiterals.front();
+    FractranLiterals.pop();
+    if (token == ")")
+        return multiplication.at(0);
+    else if (token == "*")
+        return asterisk_parse(FractranLiterals, multiplication);
+    else
+    {
+        throw "Program must be written as rationals";
+    }
+}
+
+//Function will parse out the queue of Literals into a vector of integers.
+
+void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
+{
+    while(!FractranLiterals.empty())
+    {
+        string token = FractranLiterals.front();
+        FractranLiterals.pop();
+        if (token.find_first_not_of( "0123456789" ) == string::npos)
+        {
+            int ProgramInteger;
+            stringstream ss(token);
+            ss >> ProgramInteger;
+            if (ProgramInteger > 0)
+                FractranIntegers.push_back(ProgramInteger);
+            else
+            {
+                throw "Program must be written as rationals";
+            }
+        }
+        else if (token == "(")
+            FractranIntegers.push_back(left_parenthesis_parse(FractranLiterals, FractranIntegers));
+        else if (token == "/")
+            continue;
+        else
+        {
+            throw "Program must be written as rationals";
+        }
+    }
+}
+
 //This is the main function of the Fractran Compiler. It asks for the name of the txt file of the Fractran program.
 //This file must be formatted in a way for the rest of the compiler to work and not throw a compiler time error. The
 //first is that the file only has two lines, where the first line represents the Fractran program, and the second
@@ -79,45 +220,12 @@ int main()
             //Parses the program from the first line.
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
-            vector<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/ ") == string::npos);
+            queue<string> FractranProgramLiterals;
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*() ") == string::npos);
             if (has_only_legal_characters)
             {
-                //Parses the FractranProgram using the delimiters of / and space into a vector of String Literals
-                size_t prev_pos = 0, pos;
-                while ((pos = a.find_first_of("/ ", prev_pos)) != string::npos)
-                {
-                    if (pos > prev_pos)
-                        FractranProgramLiterals.push_back(a.substr(prev_pos, pos-prev_pos));
-                    prev_pos = pos+1;
-                }
-                if (prev_pos < a.length())
-                    FractranProgramLiterals.push_back(a.substr(prev_pos, string::npos));
-
-                //Converts the vector of String Literals into a vector of integers
-                for (unsigned i = 0; i < FractranProgramLiterals.size(); i++)
-                {
-                    string Literal = FractranProgramLiterals.at(i);
-                    has_only_legal_characters = (Literal.find_first_not_of( "0123456789" ) == string::npos);
-                    if (has_only_legal_characters)
-                    {
-                        int ProgramInteger;
-                        stringstream ss(Literal);
-                        ss >> ProgramInteger;
-                        if (ProgramInteger > 0)
-                            FractranProgramIntegers.push_back(ProgramInteger);
-                        else
-                        {
-                            cout << "ERROR: The first line needs to only contain rationals greater than 0.";
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        cout << "ERROR: The first line needs to only contain rationals greater than 0.";
-                        return 0;
-                    }
-                }
+                parse_Literals(FractranProgramLiterals, a);
+                parse(FractranProgramLiterals, FractranProgramIntegers);
 
                 if(FractranProgramIntegers.size()%2 !=0)
                 {
