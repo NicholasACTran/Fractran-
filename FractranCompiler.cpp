@@ -1,9 +1,7 @@
 #include <iostream>
-#include <string>
 #include <fstream>
-#include <vector>
-#include <sstream>
-#include <algorithm>
+#include "Parser.h"
+#include "Parser.cpp"
 
 using namespace std;
 
@@ -79,44 +77,18 @@ int main()
             //Parses the program from the first line.
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
-            vector<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/ ") == string::npos);
+            queue<string> FractranProgramLiterals;
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ ") == string::npos);
             if (has_only_legal_characters)
             {
-                //Parses the FractranProgram using the delimiters of / and space into a vector of String Literals
-                size_t prev_pos = 0, pos;
-                while ((pos = a.find_first_of("/ ", prev_pos)) != string::npos)
+                parse_Literals(FractranProgramLiterals, a);
+                try
                 {
-                    if (pos > prev_pos)
-                        FractranProgramLiterals.push_back(a.substr(prev_pos, pos-prev_pos));
-                    prev_pos = pos+1;
+                    parse(FractranProgramLiterals, FractranProgramIntegers);
                 }
-                if (prev_pos < a.length())
-                    FractranProgramLiterals.push_back(a.substr(prev_pos, string::npos));
-
-                //Converts the vector of String Literals into a vector of integers
-                for (unsigned i = 0; i < FractranProgramLiterals.size(); i++)
+                catch (char const* msg)
                 {
-                    string Literal = FractranProgramLiterals.at(i);
-                    has_only_legal_characters = (Literal.find_first_not_of( "0123456789" ) == string::npos);
-                    if (has_only_legal_characters)
-                    {
-                        int ProgramInteger;
-                        stringstream ss(Literal);
-                        ss >> ProgramInteger;
-                        if (ProgramInteger > 0)
-                            FractranProgramIntegers.push_back(ProgramInteger);
-                        else
-                        {
-                            cout << "ERROR: The first line needs to only contain rationals greater than 0.";
-                            return 0;
-                        }
-                    }
-                    else
-                    {
-                        cout << "ERROR: The first line needs to only contain rationals greater than 0.";
-                        return 0;
-                    }
+                    cout << msg;
                 }
 
                 if(FractranProgramIntegers.size()%2 !=0)
@@ -187,18 +159,18 @@ int main()
                 break;
             }
         }
-        if(!historyOfNumbers.empty())
+        if(!historyOfNumbers.empty() && found)
         {
             if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
             {
-                cout << "LOOP DETECTED";
+                cout << "LOOP DETECTED" << endl;
                 break;
             }
             else historyOfNumbers.push_back(currentNumber);
         }
         else historyOfNumbers.push_back(currentNumber);
     }
-    cout << currentNumber << endl;
+    cout << "Program End" << endl;
 
     return 0;
 }
