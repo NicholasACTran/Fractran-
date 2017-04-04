@@ -46,12 +46,14 @@ struct rational
         int den;
 };
 
+int asterisk_parse(queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> &Exponentiation);
+
 //This Function will take in a string, and then parse out the literals into a queue
 
 void parse_Literals(queue<string> &FractranLiterals, string a)
 {
     size_t prev_pos = 0, pos;
-    while ((pos = a.find_first_of("/ *()", prev_pos)) != string::npos)
+    while ((pos = a.find_first_of("/ *()^", prev_pos)) != string::npos)
     {
         if (pos > prev_pos && a.at(pos) == ' ')
             FractranLiterals.push(a.substr(prev_pos, pos-prev_pos));
@@ -74,10 +76,63 @@ void parse_Literals(queue<string> &FractranLiterals, string a)
         FractranLiterals.push(a.substr(prev_pos, string::npos));
 }
 
+int carrot_parse (queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> Exponentiation)
+{
+    string token_a = FractranLiterals.front();
+    FractranLiterals.pop();
+    string token_b = FractranLiterals.front();
+    FractranLiterals.pop();
+    if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == "^")
+    {
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            Exponentiation.push_back(ProgramInteger);
+            return carrot_parse(FractranLiterals, Multiplication, Exponentiation);
+        }
+        else throw "Cannot Parse " + token_a + token_b;
+    }
+    else if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == ")")
+    {
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            int total = ProgramInteger;
+            for (unsigned i = 0; i < Exponentiation.size(); i++)
+                total = total^Exponentiation.at(i);
+            for (unsigned i = 0; i < Multiplication.size(); i++)
+                total = total * Multiplication.at(i);
+            return total;
+        }
+        else throw "Cannot Parse " + token_a + token_b;
+    }
+    else if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == "*")
+    {
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            int total = ProgramInteger;
+            for (unsigned i = 0; i < Exponentiation.size(); i++)
+                total = total^Exponentiation.at(i);
+            Exponentiation.clear();
+            Multiplication.push_back(total);
+            return asterisk_parse(FractranLiterals, Multiplication, Exponentiation);
+        }
+        else throw "Cannot Parse " + token_a + token_b;
+    }
+    else throw "Cannot Parse " + token_a + token_b;
+}
+
 //When encountering an asterisk during parsing, this function will parse the following
 //literals until it reaches a close parenthesis.
 
-int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication)
+int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> &Exponentiation)
 {
     string token_a = FractranLiterals.front();
     FractranLiterals.pop();
@@ -91,12 +146,9 @@ int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication
         if (ProgramInteger > 0)
         {
             Multiplication.push_back(ProgramInteger);
-            return asterisk_parse(FractranLiterals, Multiplication);
+            return asterisk_parse(FractranLiterals, Multiplication, Exponentiation);
         }
-        else
-        {
-            throw "Program must be written as rationals";
-        }
+        else throw "Cannot Parse " + token_a + token_b;
     }
     else if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == ")")
     {
@@ -110,15 +162,21 @@ int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication
                 product = product*Multiplication.at(i);
             return product;
         }
-        else
-        {
-            throw "Program must be written as rationals";
-        }
+        else throw "Cannot Parse " + token_a + token_b;
     }
-    else
+    else if (token_a.find_first_not_of( "0123456789" ) == string::npos && token_b == "^")
     {
-        throw "Program must be written as rationals";
+        int ProgramInteger;
+        stringstream ss(token_a);
+        ss >> ProgramInteger;
+        if (ProgramInteger > 0)
+        {
+            Exponentiation.push_back(ProgramInteger);
+            return carrot_parse(FractranLiterals, Multiplication, Exponentiation);
+        }
+        else throw "Cannot Parse " + token_a + token_b;
     }
+    else throw "Cannot Parse " + token_a + token_b;
 }
 
 //When encountering a left parenthesis during parsing, this will parse out the parenthesis
@@ -127,32 +185,29 @@ int asterisk_parse (queue<string> &FractranLiterals, vector<int> &Multiplication
 int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
 {
     vector<int> multiplication;
+    vector<int> exponentiation;
     string token = FractranLiterals.front();
     FractranLiterals.pop();
     if(!(token.find_first_not_of( "0123456789" ) == string::npos))
     {
-        throw "Program must be written as rationals";
+        throw "Cannot Parse " + token;
     }
     int ProgramInteger;
     stringstream ss(token);
     ss >> ProgramInteger;
     if (ProgramInteger > 0)
         multiplication.push_back(ProgramInteger);
-    else
-    {
-        throw "Program must be written as rationals";
-    }
+    else throw "Cannot Parse " + token;
 
     token = FractranLiterals.front();
     FractranLiterals.pop();
     if (token == ")")
         return multiplication.at(0);
     else if (token == "*")
-        return asterisk_parse(FractranLiterals, multiplication);
-    else
-    {
-        throw "Program must be written as rationals";
-    }
+        return asterisk_parse(FractranLiterals, multiplication, exponentiation);
+    else if (token == "^")
+        return carrot_parse(FractranLiterals, multiplication, exponentiation);
+    else throw "Cannot Parse " + token;
 }
 
 //Function will parse out the queue of Literals into a vector of integers.
@@ -170,19 +225,13 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
             ss >> ProgramInteger;
             if (ProgramInteger > 0)
                 FractranIntegers.push_back(ProgramInteger);
-            else
-            {
-                throw "Program must be written as rationals";
-            }
+            else throw "Cannot Parse " + token;
         }
         else if (token == "(")
             FractranIntegers.push_back(left_parenthesis_parse(FractranLiterals, FractranIntegers));
         else if (token == "/")
             continue;
-        else
-        {
-            throw "Program must be written as rationals";
-        }
+        else throw "Cannot Parse " + token;
     }
 }
 
@@ -221,11 +270,18 @@ int main()
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
             queue<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/*() ") == string::npos);
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ ") == string::npos);
             if (has_only_legal_characters)
             {
                 parse_Literals(FractranProgramLiterals, a);
-                parse(FractranProgramLiterals, FractranProgramIntegers);
+                try
+                {
+                    parse(FractranProgramLiterals, FractranProgramIntegers);
+                }
+                catch (char const* msg)
+                {
+                    cout << msg;
+                }
 
                 if(FractranProgramIntegers.size()%2 !=0)
                 {
