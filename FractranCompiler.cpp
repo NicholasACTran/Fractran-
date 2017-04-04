@@ -159,18 +159,18 @@ int main()
                 break;
             }
         }
-        if(!historyOfNumbers.empty())
+        if(!historyOfNumbers.empty() && found)
         {
             if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
             {
-                cout << "LOOP DETECTED";
+                cout << "LOOP DETECTED" << endl;
                 break;
             }
             else historyOfNumbers.push_back(currentNumber);
         }
         else historyOfNumbers.push_back(currentNumber);
     }
-    cout << currentNumber << endl;
+    cout << "Program End" << endl;
 
     return 0;
 }
