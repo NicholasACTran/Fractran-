@@ -6,51 +6,6 @@
 
 using namespace std;
 
-//The rational struct is used to represent the data of the Fractran program.
-//It holds only the numerator and denominator of the data type and can check if they are coprime.
-//FractranMultiplication() is a function used to check the multiplication of the rational
-//and a number, returning the product if it is a positive integer, else 0.
-
-struct rational
-{
-    rational(int numerator, int denominator) : num(numerator), den(denominator) {}
-
-    int numerator() const {return num;}
-    int denominator() const {return den;}
-
-    bool coprime()
-    {
-        unsigned x;
-        unsigned a = abs(num);
-        unsigned b = abs(den);
-        while(b)
-        {
-            x = a % b;
-            a = b;
-            b = x;
-        }
-        if (a > 1) return false;
-        else return true;
-    }
-
-    bool single_negative()
-    {
-        if (num < 0 && den < 0)
-            return false;
-        return true;
-    }
-
-    int fractranMultiplication(unsigned x)
-    {
-        if ((x * num) % den == 0) return (x * num / den);
-        else return 0;
-    }
-
-    private:
-        int num;
-        int den;
-};
-
 //This is the main function of the Fractran Compiler. It asks for the name of the txt file of the Fractran program.
 //This file must be formatted in a way for the rest of the compiler to work and not throw a compiler time error. The
 //first is that the file only has two lines, where the first line represents the Fractran program, and the second
@@ -94,38 +49,13 @@ int main()
                 {
                     parse(FractranProgramLiterals, FractranProgramIntegers);
                 }
-                catch (char const* msg)
-                {
-                    cout << msg;
-                }
+                catch (char const* msg) {cout << msg;}
 
-                if(FractranProgramIntegers.size()%2 !=0)
+                try
                 {
-                    cout << "ERROR: All rationals need to be written in form a/b.";
-                    return 0;
+                    integers_to_rationals(FractranProgramIntegers, FractranProgram);
                 }
-
-                //From a vector of integers, creates rationals and constructs the FractranProgram vector.
-                for (unsigned i = 0; i < FractranProgramIntegers.size(); i += 2)
-                {
-                    rational rat(FractranProgramIntegers.at(i), FractranProgramIntegers.at(i+1));
-                    if(rat.coprime() && rat.single_negative())
-                        FractranProgram.push_back(rat);
-                    else
-                    {
-                        if (!rat.coprime())
-                        {
-                            cout << "ERROR: All rationals must be coprime." << endl;
-                            cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
-                        }
-                        if (!rat.single_negative())
-                        {
-                            cout << "ERROR: All rationals can only have a single negative." << endl;
-                            cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
-                        }
-                        return 0;
-                    }
-                }
+                catch (char const* msg) {cout << msg;}
             }
 
             //Parses the input integer from the second line.

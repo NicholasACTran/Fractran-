@@ -215,8 +215,40 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
     }
 }
 
+//Debugs Fractran Integers by printing out the integers in the vector
+
 void parse_DEBUG(vector<int> &FractranIntegers)
+{
+    for (unsigned i = 0; i < FractranIntegers.size(); i++)
+        cout << FractranIntegers.at(i) << endl;
+}
+
+//From a vector of integers, creates rationals and constructs the FractranProgram vector.
+
+void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram)
+{
+    if(FractranIntegers.size()%2 !=0)
     {
-        for (unsigned i = 0; i < FractranIntegers.size(); i++)
-            cout << FractranIntegers.at(i) << endl;
+        throw "ERROR: All rationals need to be written in form a/b.";
     }
+    for (unsigned i = 0; i < FractranIntegers.size(); i += 2)
+    {
+        rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1));
+        if(rat.coprime() && rat.single_negative())
+            FractranProgram.push_back(rat);
+        else
+        {
+            if (!rat.coprime())
+            {
+                cout << "ERROR: All rationals must be coprime." << endl;
+                cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+            }
+            if (!rat.single_negative())
+            {
+                cout << "ERROR: All rationals can only have a single negative." << endl;
+                cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
+            }
+            throw "Cannot convert Integers to Rationals.";
+        }
+    }
+}
