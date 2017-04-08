@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <stdlib.h>
 #include "Parser.h"
 #include "Parser.cpp"
 
@@ -20,8 +21,8 @@ struct rational
     bool coprime()
     {
         unsigned x;
-        unsigned a = num;
-        unsigned b = den;
+        unsigned a = abs(num);
+        unsigned b = abs(den);
         while(b)
         {
             x = a % b;
@@ -30,6 +31,13 @@ struct rational
         }
         if (a > 1) return false;
         else return true;
+    }
+
+    bool single_negative()
+    {
+        if (num < 0 && den < 0)
+            return false;
+        return true;
     }
 
     int fractranMultiplication(unsigned x)
@@ -78,7 +86,7 @@ int main()
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
             queue<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ ") == string::npos);
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -") == string::npos);
             if (has_only_legal_characters)
             {
                 parse_Literals(FractranProgramLiterals, a);
@@ -101,12 +109,20 @@ int main()
                 for (unsigned i = 0; i < FractranProgramIntegers.size(); i += 2)
                 {
                     rational rat(FractranProgramIntegers.at(i), FractranProgramIntegers.at(i+1));
-                    if(rat.coprime())
+                    if(rat.coprime() && rat.single_negative())
                         FractranProgram.push_back(rat);
                     else
                     {
-                        cout << "ERROR: All rationals must be coprime." << endl;
-                        cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                        if (!rat.coprime())
+                        {
+                            cout << "ERROR: All rationals must be coprime." << endl;
+                            cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                        }
+                        if (!rat.single_negative())
+                        {
+                            cout << "ERROR: All rationals can only have a single negative." << endl;
+                            cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
+                        }
                         return 0;
                     }
                 }
@@ -142,24 +158,42 @@ int main()
 
     //Runs the program
     bool found = true;
+    bool jump = false;
     unsigned int currentNumber = startInteger;
+    unsigned j = 0;
     vector<int> historyOfNumbers;
     historyOfNumbers.push_back(currentNumber);
     while(found)
     {
         cout<<currentNumber<<endl;
+        jump = false;
         found = false;
-        for (unsigned j = 0; j < FractranProgram.size(); j++)
+        for (; j < FractranProgram.size(); j++)
         {
             int product = FractranProgram.at(j).fractranMultiplication(currentNumber);
-            if (product != 0)
+            if (product != 0 && FractranProgram.at(j).numerator() < 0)
             {
+                j = (abs(FractranProgram.at(j).numerator()) % FractranProgram.size()) - 1;
+                found = true;
+                jump = true;
+                break;
+            }
+            else if (product != 0 && FractranProgram.at(j).denominator() < 0)
+            {
+                j = ((FractranProgram.at(j).numerator() * currentNumber) % FractranProgram.size()) - 1;
+                found = true;
+                jump = true;
+                break;
+            }
+            else if (product != 0)
+            {
+                j = 0;
                 found = true;
                 currentNumber = product;
                 break;
             }
         }
-        if(!historyOfNumbers.empty() && found)
+        if(!historyOfNumbers.empty() && found && !jump)
         {
             if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
             {
@@ -168,7 +202,8 @@ int main()
             }
             else historyOfNumbers.push_back(currentNumber);
         }
-        else historyOfNumbers.push_back(currentNumber);
+        else if (historyOfNumbers.empty())
+            historyOfNumbers.push_back(currentNumber);
     }
     cout << "Program End" << endl;
 

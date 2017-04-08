@@ -9,7 +9,7 @@ using namespace std;
 void parse_Literals(queue<string> &FractranLiterals, string a)
 {
     size_t prev_pos = 0, pos;
-    while ((pos = a.find_first_of("/ *()^", prev_pos)) != string::npos)
+    while ((pos = a.find_first_of("/ *()^-", prev_pos)) != string::npos)
     {
         if (pos > prev_pos && a.at(pos) == ' ')
             FractranLiterals.push(a.substr(prev_pos, pos-prev_pos));
@@ -192,8 +192,31 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
         }
         else if (token == "(")
             FractranIntegers.push_back(left_parenthesis_parse(FractranLiterals, FractranIntegers));
+        else if (token == "-")
+        {
+            token = FractranLiterals.front();
+            FractranLiterals.pop();
+            if (token.find_first_not_of( "0123456789" ) == string::npos)
+            {
+                int ProgramInteger;
+                stringstream ss(token);
+                ss >> ProgramInteger;
+                if (ProgramInteger > 0)
+                    FractranIntegers.push_back(-ProgramInteger);
+                else throw "Cannot Parse " + token;
+            }
+            else if (token == "(")
+                FractranIntegers.push_back(-left_parenthesis_parse(FractranLiterals, FractranIntegers));
+            else throw "Cannot Parse -" + token;
+        }
         else if (token == "/")
             continue;
         else throw "Cannot Parse " + token;
     }
 }
+
+void parse_DEBUG(vector<int> &FractranIntegers)
+    {
+        for (unsigned i = 0; i < FractranIntegers.size(); i++)
+            cout << FractranIntegers.at(i) << endl;
+    }

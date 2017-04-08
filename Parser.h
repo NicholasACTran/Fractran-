@@ -1,6 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -17,7 +18,6 @@ int asterisk_parse(queue<string> &FractranLiterals, vector<int> &Multiplication,
 int carrot_parse (queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> Exponentiation);
 int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
 void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
-
-
+void parse_DEBUG(vector<int> &FractranIntegers);
 
 #endif
