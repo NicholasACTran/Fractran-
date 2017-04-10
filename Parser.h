@@ -20,7 +20,8 @@ using namespace std;
 
 struct rational
 {
-    rational(int numerator, int denominator) : num(numerator), den(denominator) {}
+    rational(int numerator, int denominator) : num(numerator), den(denominator), functiontype(-1) {}
+    rational(int numerator, int denominator, int functionpointer) : num(numerator), den(denominator), functionnumber(functionpointer){}
 
     int numerator() const {return num;}
     int denominator() const {return den;}
@@ -53,18 +54,26 @@ struct rational
         else return 0;
     }
 
+    void incrementFunctionType(unsigned x)
+    {
+        functiontype += x;
+    }
+
     private:
         int num;
         int den;
+        int functionnumber;
+        int functiontype;
 };
 
 void parse_Literals(queue<string> &FractranLiterals, string a);
 int asterisk_parse(queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> &Exponentiation);
 int carrot_parse (queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> Exponentiation);
 int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
-void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
+void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers, vector< vector<int> > &FractranFunction);
 void parse_DEBUG(vector<int> &FractranIntegers);
 void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram);
 void parse_start_integer (string b, unsigned int &a);
+void parse_function(queue<string> &FractranLiterals, vector< vector<int> > &FractranFunction);
 
 #endif

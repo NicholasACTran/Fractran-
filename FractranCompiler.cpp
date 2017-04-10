@@ -40,18 +40,24 @@ int main()
             //Parses the program from the first line.
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
+            vector< vector<int> > FractranFunctionIntegers;
             queue<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -") == string::npos);
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -<>") == string::npos);
             if (has_only_legal_characters)
             {
                 parse_Literals(FractranProgramLiterals, a);
                 try
                 {
-                    parse(FractranProgramLiterals, FractranProgramIntegers);
+                    parse(FractranProgramLiterals, FractranProgramIntegers, FractranFunctionIntegers);
                     integers_to_rationals(FractranProgramIntegers, FractranProgram);
                     parse_start_integer(fileVector.at(1), startInteger);
                 }
                 catch (char const* msg) {cout << msg; return 0;}
+            }
+            else
+            {
+                cout << "ERROR: Illegal characters in program.";
+                return 0;
             }
         }
         else

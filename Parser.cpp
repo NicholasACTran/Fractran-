@@ -9,7 +9,7 @@ using namespace std;
 void parse_Literals(queue<string> &FractranLiterals, string a)
 {
     size_t prev_pos = 0, pos;
-    while ((pos = a.find_first_of("/ *()^-", prev_pos)) != string::npos)
+    while ((pos = a.find_first_of("/ *()^-<>", prev_pos)) != string::npos)
     {
         if (pos > prev_pos && a.at(pos) == ' ')
             FractranLiterals.push(a.substr(prev_pos, pos-prev_pos));
@@ -173,9 +173,54 @@ int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &Fractra
     else throw "Cannot Parse " + token;
 }
 
+void parse_Function(queue<string> &FractranLiterals, vector< vector<int> > &FractranFunction)
+{
+    string token = FractranLiterals.front();
+    FractranLiterals.pop();
+    vector<int> functionIntegers;
+    while(token != ">")
+    {
+        if (token.find_first_not_of( "0123456789" ) == string::npos)
+        {
+            int ProgramInteger;
+            stringstream ss(token);
+            ss >> ProgramInteger;
+            if (ProgramInteger > 0)
+                functionIntegers.push_back(ProgramInteger);
+            else throw "Cannot Parse " + token;
+        }
+        else if (token == "(")
+            functionIntegers.push_back(left_parenthesis_parse(FractranLiterals, functionIntegers));
+        else if (token == "-")
+        {
+            token = FractranLiterals.front();
+            FractranLiterals.pop();
+            if (token.find_first_not_of( "0123456789" ) == string::npos)
+            {
+                int ProgramInteger;
+                stringstream ss(token);
+                ss >> ProgramInteger;
+                if (ProgramInteger > 0)
+                    functionIntegers.push_back(-ProgramInteger);
+                else throw "Cannot Parse " + token;
+            }
+            else if (token == "(")
+                functionIntegers.push_back(-left_parenthesis_parse(FractranLiterals, functionIntegers));
+            else throw "Cannot Parse -" + token;
+        }
+        else if (token == "/")
+            continue;
+        else throw "Cannot Parse " + token;
+        token = FractranLiterals.front();
+        FractranLiterals.pop();
+    }
+
+    FractranFunction.push_back(functionIntegers);
+}
+
 //Function will parse out the queue of Literals into a vector of integers.
 
-void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
+void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers, vector< vector <int> > &FractranFunction)
 {
     while(!FractranLiterals.empty())
     {
@@ -186,9 +231,7 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
             int ProgramInteger;
             stringstream ss(token);
             ss >> ProgramInteger;
-            if (ProgramInteger > 0)
-                FractranIntegers.push_back(ProgramInteger);
-            else throw "Cannot Parse " + token;
+            FractranIntegers.push_back(ProgramInteger);
         }
         else if (token == "(")
             FractranIntegers.push_back(left_parenthesis_parse(FractranLiterals, FractranIntegers));
@@ -211,6 +254,8 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers)
         }
         else if (token == "/")
             continue;
+        else if (token == "<")
+            parse_Function(FractranLiterals, FractranFunction);
         else throw "Cannot Parse " + token;
     }
 }
