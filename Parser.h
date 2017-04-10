@@ -65,5 +65,6 @@ int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &Fractra
 void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
 void parse_DEBUG(vector<int> &FractranIntegers);
 void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram);
+void parse_start_integer (string b, unsigned int &a);
 
 #endif

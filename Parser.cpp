@@ -252,3 +252,21 @@ void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &Frac
         }
     }
 }
+
+//Parses the starting integer from the second line of the file
+
+void parse_start_integer (string b, unsigned int &a)
+{
+    bool has_only_legal_characters = (b.find_first_not_of( "0123456789" ) == string::npos);
+    if (has_only_legal_characters)
+    {
+        stringstream ss(b);
+        int c;
+        ss >> c;
+        a = c;
+    }
+    else
+    {
+        throw "ERROR: The second line needs to contain only integers.";
+    }
+}

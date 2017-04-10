@@ -21,7 +21,7 @@ int main()
     cout << endl;
     nameOfFile = nameOfFile + ".txt";
 
-    int startInteger; //The input integer to the Fractran Program
+    unsigned int startInteger; //The input integer to the Fractran Program
     vector<rational> FractranProgram; //A vector of rationals that represent the Fractran Program
 
     string line;
@@ -48,33 +48,15 @@ int main()
                 try
                 {
                     parse(FractranProgramLiterals, FractranProgramIntegers);
-                }
-                catch (char const* msg) {cout << msg;}
-
-                try
-                {
                     integers_to_rationals(FractranProgramIntegers, FractranProgram);
+                    parse_start_integer(fileVector.at(1), startInteger);
                 }
-                catch (char const* msg) {cout << msg;}
-            }
-
-            //Parses the input integer from the second line.
-            string b = fileVector.at(1);
-            has_only_legal_characters = (b.find_first_not_of( "0123456789" ) == string::npos);
-            if (has_only_legal_characters)
-            {
-                stringstream ss(b);
-                ss >> startInteger;
-            }
-            else
-            {
-                cout << "ERROR: The second line needs to contain only integers.";
-                return 0;
+                catch (char const* msg) {cout << msg; return 0;}
             }
         }
         else
         {
-            cout << "ERROR: There are an incorrect number of lines in this program." << endl;
+            cout << "ERROR: There are an incorrect number of lines in this program.\n";
             cout << "The first line contains the program. The second, the starting number.";
             return 0;
         }
@@ -127,7 +109,7 @@ int main()
         {
             if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
             {
-                cout << "LOOP DETECTED" << endl;
+                cout << "LOOP DETECTED\n";
                 break;
             }
             else historyOfNumbers.push_back(currentNumber);
@@ -135,7 +117,7 @@ int main()
         else if (historyOfNumbers.empty())
             historyOfNumbers.push_back(currentNumber);
     }
-    cout << "Program End" << endl;
+    cout << "Program End";
 
     return 0;
 }
