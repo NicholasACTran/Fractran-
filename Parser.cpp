@@ -270,31 +270,72 @@ void parse_DEBUG(vector<int> &FractranIntegers)
 
 //From a vector of integers, creates rationals and constructs the FractranProgram vector.
 
-void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram)
+void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction)
 {
+    int functioncounter = 0;
     if(FractranIntegers.size()%2 !=0)
     {
         throw "ERROR: All rationals need to be written in form a/b.";
     }
     for (unsigned i = 0; i < FractranIntegers.size(); i += 2)
     {
-        rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1));
-        if(rat.coprime() && rat.single_negative())
-            FractranProgram.push_back(rat);
-        else
+        if(FractranIntegers.at(i) != 0 && FractranIntegers.at(i+1) != 0)
         {
-            if (!rat.coprime())
+            rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1));
+            if(rat.coprime() && rat.single_negative())
+                FractranProgram.push_back(rat);
+            else
             {
-                cout << "ERROR: All rationals must be coprime." << endl;
-                cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                if (!rat.coprime())
+                {
+                    cout << "ERROR: All rationals must be coprime." << endl;
+                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                }
+                if (!rat.single_negative())
+                {
+                    cout << "ERROR: All rationals can only have a single negative." << endl;
+                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
+                }
+                throw "Cannot convert Integers to Rationals.";
             }
-            if (!rat.single_negative())
-            {
-                cout << "ERROR: All rationals can only have a single negative." << endl;
-                cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
-            }
-            throw "Cannot convert Integers to Rationals.";
         }
+        else if (FractranIntegers.at(i) == 0 && FractranIntegers.at(i+1) == 0)
+        {
+            rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1), functioncounter);
+            functioncounter++;
+            rat.incrementFunctionType(1);
+            FractranProgram.push_back(rat);
+        }
+        else throw "Cannot convert Integers to Rationals.";
+    }
+    for (unsigned i = 0; i < FractranFunctionIntegers.size(); i++)
+    {
+        vector<rational> temp_function;
+        for (unsigned j = 0; j < FractranFunctionIntegers.at(i).size(); j += 2)
+        {
+            if (FractranFunctionIntegers.at(i).at(j) != 0 && FractranFunctionIntegers.at(i).at(j) != 0)
+            {
+                rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1));
+                if(rat.coprime() && rat.single_negative())
+                    temp_function.push_back(rat);
+                else
+                {
+                    if (!rat.coprime())
+                    {
+                        cout << "ERROR: All rationals must be coprime." << endl;
+                        cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                    }
+                    if (!rat.single_negative())
+                    {
+                        cout << "ERROR: All rationals can only have a single negative." << endl;
+                        cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
+                    }
+                    throw "Cannot convert Integers to Rationals.";
+                }
+            }
+            else throw "Cannot convert Integers to Rationals inside Function.";
+        }
+        FractranFunction.push_back(temp_function);
     }
 }
 

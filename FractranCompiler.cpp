@@ -23,6 +23,7 @@ int main()
 
     unsigned int startInteger; //The input integer to the Fractran Program
     vector<rational> FractranProgram; //A vector of rationals that represent the Fractran Program
+    vector< vector<rational> > FractranProgramFunctions; //A vector that holds the vectors of all of the functions within the program
 
     string line;
     vector<string> fileVector;
@@ -49,7 +50,7 @@ int main()
                 try
                 {
                     parse(FractranProgramLiterals, FractranProgramIntegers, FractranFunctionIntegers);
-                    integers_to_rationals(FractranProgramIntegers, FractranProgram);
+                    integers_to_rationals(FractranProgramIntegers, FractranProgram, FractranFunctionIntegers, FractranProgramFunctions);
                     parse_start_integer(fileVector.at(1), startInteger);
                 }
                 catch (char const* msg) {cout << msg; return 0;}
