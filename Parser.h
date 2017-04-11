@@ -21,7 +21,7 @@ using namespace std;
 struct rational
 {
     rational(int numerator, int denominator) : num(numerator), den(denominator), functiontype(-1) {}
-    rational(int numerator, int denominator, int functionpointer) : num(numerator), den(denominator), functionnumber(functionpointer){}
+    rational(int numerator, int denominator, int functionpointer) : num(numerator), den(denominator), functionnumber(functionpointer), functiontype(-1){}
 
     int numerator() const {return num;}
     int denominator() const {return den;}

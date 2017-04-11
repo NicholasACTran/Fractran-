@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "Parser.h"
 #include "Parser.cpp"
+#include "Execution.h"
+#include "Execution.cpp"
 
 using namespace std;
 
@@ -75,55 +77,8 @@ int main()
         return 0;
     }
 
-    //Runs the program
-    bool found = true;
-    bool jump = false;
-    unsigned int currentNumber = startInteger;
-    unsigned j = 0;
-    vector<int> historyOfNumbers;
-    historyOfNumbers.push_back(currentNumber);
-    while(found)
-    {
-        cout<<currentNumber<<endl;
-        jump = false;
-        found = false;
-        for (; j < FractranProgram.size(); j++)
-        {
-            int product = FractranProgram.at(j).fractranMultiplication(currentNumber);
-            if (product != 0 && FractranProgram.at(j).numerator() < 0)
-            {
-                j = (abs(FractranProgram.at(j).numerator()) % FractranProgram.size()) - 1;
-                found = true;
-                jump = true;
-                break;
-            }
-            else if (product != 0 && FractranProgram.at(j).denominator() < 0)
-            {
-                j = ((FractranProgram.at(j).numerator() * currentNumber) % FractranProgram.size()) - 1;
-                found = true;
-                jump = true;
-                break;
-            }
-            else if (product != 0)
-            {
-                j = 0;
-                found = true;
-                currentNumber = product;
-                break;
-            }
-        }
-        if(!historyOfNumbers.empty() && found && !jump)
-        {
-            if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
-            {
-                cout << "LOOP DETECTED\n";
-                break;
-            }
-            else historyOfNumbers.push_back(currentNumber);
-        }
-        else if (historyOfNumbers.empty())
-            historyOfNumbers.push_back(currentNumber);
-    }
+    executionLoop(startInteger, FractranProgram, FractranProgramFunctions);
+
     cout << "Program End";
 
     return 0;
