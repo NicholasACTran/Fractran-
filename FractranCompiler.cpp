@@ -51,8 +51,11 @@ int main()
                 parse_Literals(FractranProgramLiterals, a);
                 try
                 {
+                    cout <<"Test 1";
                     parse(FractranProgramLiterals, FractranProgramIntegers, FractranFunctionIntegers);
+                    cout <<"Test 2";
                     integers_to_rationals(FractranProgramIntegers, FractranProgram, FractranFunctionIntegers, FractranProgramFunctions);
+                    cout <<"Test 3";
                     parse_start_integer(fileVector.at(1), startInteger);
                 }
                 catch (char const* msg) {cout << msg; return 0;}
