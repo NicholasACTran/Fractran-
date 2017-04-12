@@ -12,7 +12,7 @@ int executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vect
     historyOfNumbers.push_back(currentNumber);
     while(found)
     {
-        cout<<currentNumber<<endl;
+        cout<<currentNumber<<"\n";
         jump = false;
         found = false;
         for (; j < ProgramList.size(); j++)
@@ -71,6 +71,7 @@ void print_Program(vector<rational> &ProgramList, vector< vector<rational> > &Fu
         ProgramList.at(i).toString();
         if (ProgramList.at(i).getfunctiontype() != -1)
         {
+            cout<<ProgramList.at(i).getfunctionpointer()<<" ";
             for (unsigned j = 0; j < FunctionList.at(ProgramList.at(i).getfunctionpointer()).size(); j++)
                 FunctionList.at(ProgramList.at(i).getfunctionpointer()).at(j).toString();
         }

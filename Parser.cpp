@@ -183,7 +183,6 @@ void parse_Function(unsigned int &functioncount, queue<string> &FractranLiterals
     FractranFunction.push_back(functionIntegers);
     while(token != ">")
     {
-        cout<<token;
         if (token.find_first_not_of( "0123456789" ) == string::npos)
         {
             int ProgramInteger;

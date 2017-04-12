@@ -56,7 +56,7 @@ struct rational
 
     int fractranMultiplication(unsigned x)
     {
-        if ((x * num) % den == 0) return (x * num / den);
+        if (x % den == 0) return (x * num / den);
         else return 0;
     }
 
