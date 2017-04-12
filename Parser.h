@@ -25,7 +25,13 @@ struct rational
 
     int numerator() const {return num;}
     int denominator() const {return den;}
+    int getfunctiontype() const {return functiontype;}
+    int getfunctionpointer() const {return functionnumber;}
 
+    void toString()
+    {
+        cout << num << "/" << den << " ";
+    }
     bool coprime()
     {
         unsigned x;

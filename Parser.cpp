@@ -208,8 +208,7 @@ void parse_Function(queue<string> &FractranLiterals, vector< vector<int> > &Frac
                 functionIntegers.push_back(-left_parenthesis_parse(FractranLiterals, functionIntegers));
             else throw "Cannot Parse -" + token;
         }
-        else if (token == "/")
-            continue;
+        else if (token == "/"){}
         else throw "Cannot Parse " + token;
         token = FractranLiterals.front();
         FractranLiterals.pop();
@@ -313,9 +312,9 @@ void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &Frac
         vector<rational> temp_function;
         for (unsigned j = 0; j < FractranFunctionIntegers.at(i).size(); j += 2)
         {
-            if (FractranFunctionIntegers.at(i).at(j) != 0 && FractranFunctionIntegers.at(i).at(j) != 0)
+            if (FractranFunctionIntegers.at(i).at(j) != 0 && FractranFunctionIntegers.at(i).at(j+1) != 0)
             {
-                rational rat(FractranIntegers.at(i), FractranIntegers.at(i+1));
+                rational rat(FractranFunctionIntegers.at(i).at(j), FractranFunctionIntegers.at(i).at(j+1));
                 if(rat.coprime() && rat.single_negative())
                     temp_function.push_back(rat);
                 else

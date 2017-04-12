@@ -1,6 +1,8 @@
 #ifndef EXECUTION_H
 #define EXECUTION_H
+#include "Parser.h"
 
-void executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vector<rational> > &FunctionList);
+int executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vector<rational> > &FunctionList);
+void print_Program(vector<rational> &ProgramList, vector< vector<rational> > &FunctionList);
 
 #endif

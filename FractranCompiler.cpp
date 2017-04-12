@@ -77,8 +77,9 @@ int main()
         return 0;
     }
 
-    executionLoop(startInteger, FractranProgram, FractranProgramFunctions);
+    int output = executionLoop(startInteger, FractranProgram, FractranProgramFunctions);
 
+    cout << "Output: " << output << "\n";
     cout << "Program End";
 
     return 0;

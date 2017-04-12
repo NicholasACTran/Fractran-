@@ -1,9 +1,8 @@
 #include "Execution.h"
-#include "Parser.h"
 
 using namespace std;
 
-void executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vector<rational> > &FunctionList)
+int executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vector<rational> > &FunctionList)
 {
     //Runs the program
     bool found = true;
@@ -18,27 +17,35 @@ void executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vec
         found = false;
         for (; j < ProgramList.size(); j++)
         {
-            int product = ProgramList.at(j).fractranMultiplication(currentNumber);
-            if (product != 0 && ProgramList.at(j).numerator() < 0)
+            if (ProgramList.at(j).getfunctiontype() == -1)
             {
-                j = (abs(ProgramList.at(j).numerator()) % ProgramList.size()) - 1;
-                found = true;
-                jump = true;
-                break;
+                int product = ProgramList.at(j).fractranMultiplication(currentNumber);
+                if (product != 0 && ProgramList.at(j).numerator() < 0)
+                {
+                    j = (abs(ProgramList.at(j).numerator()) % ProgramList.size()) - 1;
+                    found = true;
+                    jump = true;
+                    break;
+                }
+                else if (product != 0 && ProgramList.at(j).denominator() < 0)
+                {
+                    j = ((ProgramList.at(j).numerator() * currentNumber) % ProgramList.size()) - 1;
+                    found = true;
+                    jump = true;
+                    break;
+                }
+                else if (product != 0)
+                {
+                    j = 0;
+                    found = true;
+                    currentNumber = product;
+                    break;
+                }
             }
-            else if (product != 0 && ProgramList.at(j).denominator() < 0)
+            else
             {
-                j = ((ProgramList.at(j).numerator() * currentNumber) % ProgramList.size()) - 1;
+                currentNumber = executionLoop(currentNumber, FunctionList.at(ProgramList.at(j).getfunctionpointer()), FunctionList);
                 found = true;
-                jump = true;
-                break;
-            }
-            else if (product != 0)
-            {
-                j = 0;
-                found = true;
-                currentNumber = product;
-                break;
             }
         }
         if(!historyOfNumbers.empty() && found && !jump)
@@ -52,5 +59,20 @@ void executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vec
         }
         else if (historyOfNumbers.empty())
             historyOfNumbers.push_back(currentNumber);
+    }
+
+    return currentNumber;
+}
+
+void print_Program(vector<rational> &ProgramList, vector< vector<rational> > &FunctionList)
+{
+    for (unsigned i = 0; i < ProgramList.size(); i++)
+    {
+        ProgramList.at(i).toString();
+        if (ProgramList.at(i).getfunctiontype() != -1)
+        {
+            for (unsigned j = 0; j < FunctionList.at(ProgramList.at(i).getfunctionpointer()).size(); j++)
+                FunctionList.at(ProgramList.at(i).getfunctionpointer()).at(j).toString();
+        }
     }
 }
