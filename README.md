@@ -1,4 +1,4 @@
-# Fractran-
+# Fractran^
 A compiler for Fractran^.
 
 The goal is to create a compiler for a high-level language based on Fractran.
@@ -30,3 +30,20 @@ After successfully compiling the program, the program will run and a line will b
 program will stop when it reaches a halting state, or if certain loops are detected. Considering the nature of Fractran, it is
 possible for certain loops to be detected. By keeping a record of the changes of n during the duration of the program, if n
 repeats it would signal a loop. The program will halt at that point.
+
+# Direct Jumps
+
+Fractran^ currently supports direct jumps. This is done in the form of -p/q or p/-q. During an program runtime, if the current
+number, n, comes across a jump point p/q, if n/q is a natural number, it will cause the program to jump. The type of jump depends
+on the format of the jump point. If the jump point is written such that the numerator is negative, the program will jump to the
+pth rational in the list, keeping n as the current number. If the denominator is negative, the program will jump to the
+(np) mod d rational in the list, where d is the number of rationals in the list.
+
+# Functions and Loops
+
+A Fractran program is a while loop, with an input integer iterating of a list of rationals. In order to support functions and
+nested loops a new notation is invented: 0/0 < ... >. 0/0 marks the entry point into a function, where the function is a list
+of rationals within <>. Note that the list of rationals within <> do not count towards the number of rationals in the parent
+list when calculating jump locations. When the current number, n, comes across 0/0, it will enter the function and iterate over
+list of rationals within the function. From here, the function acts as a Fractran program, where n will loop until it cannot find
+a valid np/q. Once the function ends, it will continue on to the next rational in the parent list.

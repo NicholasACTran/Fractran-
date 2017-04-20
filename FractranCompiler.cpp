@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "Parser.h"
 #include "Parser.cpp"
+#include "Execution.h"
+#include "Execution.cpp"
 
 using namespace std;
 
@@ -23,6 +25,7 @@ int main()
 
     unsigned int startInteger; //The input integer to the Fractran Program
     vector<rational> FractranProgram; //A vector of rationals that represent the Fractran Program
+    vector< vector<rational> > FractranProgramFunctions; //A vector that holds the vectors of all of the functions within the program
 
     string line;
     vector<string> fileVector;
@@ -40,18 +43,24 @@ int main()
             //Parses the program from the first line.
             string a = fileVector.at(0);
             vector<int> FractranProgramIntegers;
+            vector< vector<int> > FractranFunctionIntegers;
             queue<string> FractranProgramLiterals;
-            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -") == string::npos);
+            has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -<>") == string::npos);
             if (has_only_legal_characters)
             {
                 parse_Literals(FractranProgramLiterals, a);
                 try
                 {
-                    parse(FractranProgramLiterals, FractranProgramIntegers);
-                    integers_to_rationals(FractranProgramIntegers, FractranProgram);
+                    parse(FractranProgramLiterals, FractranProgramIntegers, FractranFunctionIntegers);
+                    integers_to_rationals(FractranProgramIntegers, FractranProgram, FractranFunctionIntegers, FractranProgramFunctions);
                     parse_start_integer(fileVector.at(1), startInteger);
                 }
                 catch (char const* msg) {cout << msg; return 0;}
+            }
+            else
+            {
+                cout << "ERROR: Illegal characters in program.";
+                return 0;
             }
         }
         else
@@ -67,56 +76,9 @@ int main()
         cout << "ERROR: Unable to open file";
         return 0;
     }
+    int output = executionLoop(startInteger, FractranProgram, FractranProgramFunctions);
 
-    //Runs the program
-    bool found = true;
-    bool jump = false;
-    unsigned int currentNumber = startInteger;
-    unsigned j = 0;
-    vector<int> historyOfNumbers;
-    historyOfNumbers.push_back(currentNumber);
-    while(found)
-    {
-        cout<<currentNumber<<endl;
-        jump = false;
-        found = false;
-        for (; j < FractranProgram.size(); j++)
-        {
-            int product = FractranProgram.at(j).fractranMultiplication(currentNumber);
-            if (product != 0 && FractranProgram.at(j).numerator() < 0)
-            {
-                j = (abs(FractranProgram.at(j).numerator()) % FractranProgram.size()) - 1;
-                found = true;
-                jump = true;
-                break;
-            }
-            else if (product != 0 && FractranProgram.at(j).denominator() < 0)
-            {
-                j = ((FractranProgram.at(j).numerator() * currentNumber) % FractranProgram.size()) - 1;
-                found = true;
-                jump = true;
-                break;
-            }
-            else if (product != 0)
-            {
-                j = 0;
-                found = true;
-                currentNumber = product;
-                break;
-            }
-        }
-        if(!historyOfNumbers.empty() && found && !jump)
-        {
-            if(find(historyOfNumbers.begin(), historyOfNumbers.end(), currentNumber) != historyOfNumbers.end())
-            {
-                cout << "LOOP DETECTED\n";
-                break;
-            }
-            else historyOfNumbers.push_back(currentNumber);
-        }
-        else if (historyOfNumbers.empty())
-            historyOfNumbers.push_back(currentNumber);
-    }
+    cout << "Output: " << output << "\n";
     cout << "Program End";
 
     return 0;
