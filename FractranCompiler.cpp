@@ -48,6 +48,8 @@ int main()
             has_only_legal_characters = (a.find_first_not_of("0123456789/*()^ -<>") == string::npos);
             if (has_only_legal_characters)
             {
+                //This try/catch block uses parsing methods to parse the data into a data structure that
+                //can be executed.
                 parse_Literals(FractranProgramLiterals, a);
                 try
                 {

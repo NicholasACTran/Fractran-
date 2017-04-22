@@ -173,6 +173,9 @@ int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &Fractra
     else throw "Cannot Parse " + token;
 }
 
+//When encountering a Left Carrot <, this function will parse out the sub-loop of the Fractran Program.
+//This sub-loop will be stored in a vector of vector of ints to be translated later into rationals.
+
 void parse_Function(unsigned int &functioncount, queue<string> &FractranLiterals, vector< vector<int> > &FractranFunction)
 {
     string token = FractranLiterals.front();
@@ -261,52 +264,24 @@ void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers, vecto
     }
 }
 
-//Debugs Fractran Integers by printing out the integers in the vector
+//Parses the starting integer from the second line of the file
 
-void parse_DEBUG(vector<int> &FractranIntegers)
+void parse_start_integer (string b, unsigned int &a)
 {
-    for (unsigned i = 0; i < FractranIntegers.size(); i++)
-        cout << FractranIntegers.at(i) << endl;
-}
-
-void integers_to_rationals_functions(unsigned int &functioncount, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction)
-{
-    int currentCount = functioncount;
-    functioncount++;
-    vector<rational> temp_function;
-    FractranFunction.push_back(temp_function);
-    for (unsigned j = 0; j < FractranFunctionIntegers.at(currentCount).size(); j += 2)
+    bool has_only_legal_characters = (b.find_first_not_of( "0123456789" ) == string::npos);
+    if (has_only_legal_characters)
     {
-        if (FractranFunctionIntegers.at(currentCount).at(j) != 0 && FractranFunctionIntegers.at(currentCount).at(j+1) != 0)
-        {
-            rational rat(FractranFunctionIntegers.at(currentCount).at(j), FractranFunctionIntegers.at(currentCount).at(j+1));
-            if(rat.coprime() && rat.single_negative())
-                FractranFunction.at(currentCount).push_back(rat);
-            else
-            {
-                if (!rat.coprime())
-                {
-                    cout << "ERROR: All rationals must be coprime." << endl;
-                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
-                }
-                if (!rat.single_negative())
-                {
-                    cout << "ERROR: All rationals can only have a single negative." << endl;
-                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
-                }
-                throw "Cannot convert Integers to Rationals.";
-            }
-        }
-        else if (FractranFunctionIntegers.at(currentCount).at(j) == 0 && FractranFunctionIntegers.at(currentCount).at(j+1) == 0)
-        {
-            rational rat(FractranFunctionIntegers.at(currentCount).at(j), FractranFunctionIntegers.at(currentCount).at(j+1), functioncount);
-            integers_to_rationals_functions(functioncount, FractranFunctionIntegers, FractranFunction);
-            rat.incrementFunctionType(1);
-            FractranFunction.at(currentCount).push_back(rat);
-        }
-        else throw "Cannot convert Integers to Rationals inside Function.";
+        stringstream ss(b);
+        int c;
+        ss >> c;
+        a = c;
+    }
+    else
+    {
+        throw "ERROR: The second line needs to contain only integers.";
     }
 }
+
 
 //From a vector of integers, creates rationals and constructs the FractranProgram vector.
 
@@ -350,20 +325,51 @@ void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &Frac
     }
 }
 
-//Parses the starting integer from the second line of the file
+//This is a recursive method that will parse a function in the Fractran program to a an executable data structure.
 
-void parse_start_integer (string b, unsigned int &a)
+void integers_to_rationals_functions(unsigned int &functioncount, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction)
 {
-    bool has_only_legal_characters = (b.find_first_not_of( "0123456789" ) == string::npos);
-    if (has_only_legal_characters)
+    int currentCount = functioncount;
+    functioncount++;
+    vector<rational> temp_function;
+    FractranFunction.push_back(temp_function);
+    for (unsigned j = 0; j < FractranFunctionIntegers.at(currentCount).size(); j += 2)
     {
-        stringstream ss(b);
-        int c;
-        ss >> c;
-        a = c;
+        if (FractranFunctionIntegers.at(currentCount).at(j) != 0 && FractranFunctionIntegers.at(currentCount).at(j+1) != 0)
+        {
+            rational rat(FractranFunctionIntegers.at(currentCount).at(j), FractranFunctionIntegers.at(currentCount).at(j+1));
+            if(rat.coprime() && rat.single_negative())
+                FractranFunction.at(currentCount).push_back(rat);
+            else
+            {
+                if (!rat.coprime())
+                {
+                    cout << "ERROR: All rationals must be coprime." << endl;
+                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" is not coprime.";
+                }
+                if (!rat.single_negative())
+                {
+                    cout << "ERROR: All rationals can only have a single negative." << endl;
+                    cout << "The rational "<<rat.numerator()<<"/"<<rat.denominator()<<" has multiple negatives.";
+                }
+                throw "Cannot convert Integers to Rationals.";
+            }
+        }
+        else if (FractranFunctionIntegers.at(currentCount).at(j) == 0 && FractranFunctionIntegers.at(currentCount).at(j+1) == 0)
+        {
+            rational rat(FractranFunctionIntegers.at(currentCount).at(j), FractranFunctionIntegers.at(currentCount).at(j+1), functioncount);
+            integers_to_rationals_functions(functioncount, FractranFunctionIntegers, FractranFunction);
+            rat.incrementFunctionType(1);
+            FractranFunction.at(currentCount).push_back(rat);
+        }
+        else throw "Cannot convert Integers to Rationals inside Function.";
     }
-    else
-    {
-        throw "ERROR: The second line needs to contain only integers.";
-    }
+}
+
+//Debugs Fractran Integers by printing out the integers in the vector
+
+void parse_DEBUG(vector<int> &FractranIntegers)
+{
+    for (unsigned i = 0; i < FractranIntegers.size(); i++)
+        cout << FractranIntegers.at(i) << endl;
 }
