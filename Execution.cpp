@@ -2,6 +2,8 @@
 
 using namespace std;
 
+//This is the execution loop that will run the program.
+
 int executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vector<rational> > &FunctionList)
 {
     //Runs the program
@@ -63,6 +65,8 @@ int executionLoop(int currentNumber, vector<rational> &ProgramList, vector< vect
 
     return currentNumber;
 }
+
+//Helper function used to Debug the program during the execution loop.
 
 void print_Program(vector<rational> &ProgramList, vector< vector<rational> > &FunctionList)
 {

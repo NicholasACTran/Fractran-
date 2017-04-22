@@ -73,14 +73,17 @@ struct rational
 };
 
 void parse_Literals(queue<string> &FractranLiterals, string a);
+
 int asterisk_parse(queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> &Exponentiation);
 int carrot_parse (queue<string> &FractranLiterals, vector<int> &Multiplication, vector<int> Exponentiation);
 int left_parenthesis_parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers);
 void parse(queue<string> &FractranLiterals, vector<int> &FractranIntegers, vector< vector<int> > &FractranFunction);
-void parse_DEBUG(vector<int> &FractranIntegers);
-void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction);
-void integers_to_rationals_functions(unsigned int &functioncount, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction);
 void parse_start_integer (string b, unsigned int &a);
 void parse_function(unsigned int &functioncount, queue<string> &FractranLiterals, vector< vector<int> > &FractranFunction);
+
+void integers_to_rationals(vector<int> &FractranIntegers, vector<rational> &FractranProgram, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction);
+void integers_to_rationals_functions(unsigned int &functioncount, vector< vector<int> > &FractranFunctionIntegers, vector< vector<rational> > &FractranFunction);
+
+void parse_DEBUG(vector<int> &FractranIntegers);
 
 #endif
